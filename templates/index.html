@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinWise - Your Smart Financial Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="navbar-brand">
+                <i class="fas fa-robot brand-icon"></i>
+                <span class="brand-text">FinWise</span>
+            </div>
+            
+            <div class="nav-actions">
+                <!-- Mode Selector -->
+                <div class="mode-selector-container">
+                    {% for mode, description in modes.items() %}
+                    <button class="mode-btn" data-mode="{{ mode }}">
+                        <i class="mode-icon fas 
+                            {%- if mode == 'advisor' -%} fa-user-tie
+                            {%- elif mode == 'analysis' -%} fa-chart-line
+                            {%- elif mode == 'portfolio' -%} fa-briefcase
+                            {%- else -%} fa-graduation-cap
+                            {%- endif -%}"></i>
+                        <span>{{ description }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                </button>
+
+                <!-- Commands Guide Button -->
+                <button id="commandsButton" class="commands-btn">
+                    <i class="fas fa-terminal"></i>
+                </button>
+
+                <!-- Help Button -->
+                <button id="helpButton" class="help-btn">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-bolt"></i>
+                <span>Quick Actions</span>
+            </div>
+            
+            <!-- Quick Commands -->
+            <div class="command-groups">
+                <div class="command-group">
+                    <div class="group-title">Market Data</div>
+                    <button class="quick-command" data-command="price">
+                        <i class="fas fa-dollar-sign"></i>
+                        Get Stock Price
+                    </button>
+                    <button class="quick-command" data-command="analysis">
+                        <i class="fas fa-chart-bar"></i>
+                        Technical Analysis
+                    </button>
+                </div>
+
+                <div class="command-group">
+                    <div class="group-title">Portfolio</div>
+                    <button class="quick-command" data-command="portfolio">
+                        <i class="fas fa-folder"></i>
+                        View Portfolio
+                    </button>
+                    <button class="quick-command" data-command="add">
+                        <i class="fas fa-plus"></i>
+                        Add Stock
+                    </button>
+                </div>
+
+                <div class="command-group">
+                    <div class="group-title">Tools</div>
+                    <button class="quick-command" data-command="calculate">
+                        <i class="fas fa-calculator"></i>
+                        Financial Calculator
+                    </button>
+                    <button class="quick-command" data-command="learn">
+                        <i class="fas fa-book"></i>
+                        Learning Resources
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <i class="fas fa-comments"></i>
+                    <span>Chat with FinWise</span>
+                </div>
+                <div class="current-mode" id="currentMode"></div>
+            </div>
+
+            <div class="chat-messages" id="chatArea">
+                <!-- Welcome Message -->
+                <div class="message bot">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <i class="fas fa-robot"></i>
+                            <span>FinWise</span>
+                        </div>
+                        <div class="message-text">
+                            👋 Welcome to FinWise! I'm your AI-powered financial assistant.
+                            <br><br>
+                            I can help you with:
+                            <ul>
+                                <li>Real-time stock prices and analysis</li>
+                                <li>Portfolio management</li>
+                                <li>Financial calculations</li>
+                                <li>Market insights and learning resources</li>
+                            </ul>
+                            How can I assist you today?
+                        </div>
+                        <div class="message-time"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="chat-input">
+                <div class="input-group">
+                    <input type="text" id="userInput" class="form-control" 
+                           placeholder="Type your message here...">
+                    <button class="btn btn-primary" id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="input-suggestions">
+                    <span class="suggestion">price RELIANCE</span>
+                    <span class="suggestion">market mood</span>
+                    <span class="suggestion">learn stocks</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-question-circle"></i>
+                        FinWise Help
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="helpContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Commands Guide Modal -->
+    <div class="modal fade" id="commandsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-terminal"></i>
+                        Available Commands
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="commands-container">
+                        <!-- Market Data Commands -->
+                        <div class="command-section">
+                            <h3><i class="fas fa-chart-line"></i> Market Data</h3>
+                            <div class="command-list">
+                                <div class="command-item">
+                                    <code>price SYMBOL</code>
+                                    <span>Get real-time stock price</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>analysis SYMBOL</code>
+                                    <span>Get technical analysis</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>sentiment SYMBOL</code>
+                                    <span>Get market sentiment</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>market mood</code>
+                                    <span>Check overall market sentiment</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Portfolio Commands -->
+                        <div class="command-section">
+                            <h3><i class="fas fa-briefcase"></i> Portfolio Management</h3>
+                            <div class="command-list">
+                                <div class="command-item">
+                                    <code>create portfolio</code>
+                                    <span>Create a new portfolio</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>add stock SYMBOL QTY PRICE</code>
+                                    <span>Add stock to portfolio</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>show portfolio</code>
+                                    <span>View portfolio summary</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>remove stock SYMBOL</code>
+                                    <span>Remove stock from portfolio</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calculator Commands -->
+                        <div class="command-section">
+                            <h3><i class="fas fa-calculator"></i> Financial Calculators</h3>
+                            <div class="command-list">
+                                <div class="command-item">
+                                    <code>calculate sip AMOUNT YEARS RETURN</code>
+                                    <span>SIP calculator</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>calculate emi AMOUNT RATE YEARS</code>
+                                    <span>EMI calculator</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>calculate returns AMOUNT YEARS RATE</code>
+                                    <span>Investment returns calculator</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Learning Commands -->
+                        <div class="command-section">
+                            <h3><i class="fas fa-graduation-cap"></i> Learning Resources</h3>
+                            <div class="command-list">
+                                <div class="command-item">
+                                    <code>learn stocks</code>
+                                    <span>Learn about stocks</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>learn mutual_funds</code>
+                                    <span>Learn about mutual funds</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>learn technical</code>
+                                    <span>Learn technical analysis</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mode Commands -->
+                        <div class="command-section">
+                            <h3><i class="fas fa-exchange-alt"></i> Mode Selection</h3>
+                            <div class="command-list">
+                                <div class="command-item">
+                                    <code>mode advisor</code>
+                                    <span>Switch to financial advisor mode</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>mode analysis</code>
+                                    <span>Switch to market analysis mode</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>mode portfolio</code>
+                                    <span>Switch to portfolio management mode</span>
+                                </div>
+                                <div class="command-item">
+                                    <code>mode learning</code>
+                                    <span>Switch to learning mode</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 

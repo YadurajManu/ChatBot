@@ -1,0 +1,13 @@
+{
+    "stocks": {
+        "RELIANCE": {
+            "quantity": 10.0,
+            "buy_price": 1000.0,
+            "current_price": 1281.55,
+            "last_updated": "2025-02-06T19:23:26.056564"
+        }
+    },
+    "mutual_funds": {},
+    "created_at": "2025-02-06T19:23:10.205268",
+    "last_updated": "2025-02-06T19:23:26.056577"
+}
